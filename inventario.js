@@ -1,28 +1,66 @@
-// 1. Simulamos una conexión a la base de datos que tarda 2 segundos.
-// Devuelve una "Promesa" (Promise).
+// // 1. Simulamos una conexión a la base de datos que tarda 2 segundos.
+// // Devuelve una "Promesa" (Promise).
+// function consultarBaseDeDatos() {
+//     return new Promise((resolver) => {
+//         setTimeout(() => {
+//             resolver([
+//                 { id: 1, producto: 'Harina 50kg', stock: 10 },
+//                 { id: 2, producto: 'Chocolate amargo', stock: 5 }
+//             ]);
+//         }, 2000); // 2000 milisegundos = 2 segundos
+//     });
+// }
+
+// // 2. Creamos una función ASÍNCRONA (async) para manejar la espera sin bloquear el servidor.
+// async function obtenerInventario() {
+//     console.log("Iniciando consulta al sistema...");
+    
+//     // El 'await' pausa la ejecución de ESTA línea hasta que la base de datos responda.
+//     // Mientras tanto, Node.js podría estar atendiendo a otros usuarios.
+//     const datos = await consultarBaseDeDatos(); 
+    
+//     console.log("Datos recibidos de la base de datos:");
+//     console.log(datos);
+// }
+
+// // 3. Ejecutamos la función
+// obtenerInventario();
+// console.log("Esta línea está al final del archivo, pero mira cuándo se imprime.");
+
+
+// 1. Modificamos la simulación para que pueda FALLAR
 function consultarBaseDeDatos() {
-    return new Promise((resolver) => {
+    return new Promise((resolver, rechazar) => {
         setTimeout(() => {
-            resolver([
-                { id: 1, producto: 'Harina 50kg', stock: 10 },
-                { id: 2, producto: 'Chocolate amargo', stock: 5 }
-            ]);
-        }, 2000); // 2000 milisegundos = 2 segundos
+            const conexionExitosa = true; // ¡Simulamos que se cortó el cable de red!
+
+            if (conexionExitosa) {
+                resolver([
+                    { id: 1, producto: 'Harina 50kg', stock: 10 }
+                ]);
+            } else {
+                rechazar(new Error("¡Error Crítico: Base de datos desconectada!"));
+            }
+        }, 2000);
     });
 }
 
-// 2. Creamos una función ASÍNCRONA (async) para manejar la espera sin bloquear el servidor.
+// 2. Aplicamos Try/Catch en nuestra función asíncrona
 async function obtenerInventario() {
     console.log("Iniciando consulta al sistema...");
     
-    // El 'await' pausa la ejecución de ESTA línea hasta que la base de datos responda.
-    // Mientras tanto, Node.js podría estar atendiendo a otros usuarios.
-    const datos = await consultarBaseDeDatos(); 
-    
-    console.log("Datos recibidos de la base de datos:");
-    console.log(datos);
+    try {
+        // INTENTA ejecutar este código peligroso
+        const datos = await consultarBaseDeDatos(); 
+        console.log("Datos recibidos:", datos);
+    } catch (error) {
+        // Si la promesa es "rechazada", el código salta inmediatamente aquí
+        console.error("Falla en el sistema:", error.message);
+        // Aquí podríamos enviar una alerta a n8n o encender un LED en un ESP32
+    } finally {
+        // Esto se ejecuta SIEMPRE, haya error o no.
+        console.log("Operación finalizada. Cerrando conexión...");
+    }
 }
 
-// 3. Ejecutamos la función
 obtenerInventario();
-console.log("Esta línea está al final del archivo, pero mira cuándo se imprime.");
