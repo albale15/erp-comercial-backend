@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/albale15/erp-comercial-backend/issues"
   },
-  "homepage": "https://github.com/albale15/erp-comercial-backend#readme"
+  "homepage": "https://github.com/albale15/erp-comercial-backend#readme",
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
 }
